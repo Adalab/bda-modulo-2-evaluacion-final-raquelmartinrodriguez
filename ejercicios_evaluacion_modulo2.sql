@@ -106,7 +106,85 @@ SELECT `actor`.`first_name`, `actor`. `last_name`
     INNER JOIN `actor` ON `film_actor`.`actor_id`= `actor`.`actor_id`
 	WHERE `film`.`title` = "Indian Love";
 
+/* EJERCICIO 14: Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.*/
 
+-- Seleccionamos las películas filtrando los resultados para que contengan 'dog' o 'cat' en la descripción mediante el uso del operador de filtro LIKE.
+SELECT `title`
+	FROM `film`
+    WHERE `description` LIKE '%dog%' OR '%cat%';
+
+/* EJERCICIO 15: Hay algún actor o actriz que no apareca en ninguna película en la tabla `film_actor`.*/
+
+
+/* EJERCICIO 16: Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.*/
+-- seleccionamos el título de la tabla film y filtramos los resultados para que sólo nos muestre las que se lanzaron entre el 2005 y el 2010
+
+SELECT `title`
+	FROM `film`
+    WHERE `release_year`>= 2005 AND `release_year` <= 2010;
     
+/* EJERCICIO 17: Encuentra el título de todas las películas que son de la misma categoría que "Family".*/
+
+-- Relacionamos la tabla de películas con la de categorías para poder obtener el título de la película y la categoría. 
+-- Filtramos los resultados mediante la claúsula WHERE, para que nos muestre todos los títulos de las películas que son de la categoría 'Family' 
+SELECT `film`.`title`
+	FROM `film`
+    INNER JOIN `film_category` 
+		ON `film`.`film_id`= `film_category`.`film_id`
+	INNER JOIN `category` 
+		ON `film_category`.`category_id`= `category`.`category_id`
+	WHERE `category`.`name`= 'Family' 
+
+/* EJERCICIO 18: Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.*/
+
+-- Hacemos dos INNER JOIN para relacionar los actores y las películas. Agrupamos por el id del actor, para que nos muestre en cuántas películas aparece cada actor. 
+-- Filtramos los resultados para que únicamente nos muestre los actores que aparecen en más de 10 peliculas usando HAVING. 
+SELECT `actor`.`first_name`, `actor`.`last_name`
+	FROM `film`
+    INNER JOIN `film_actor`
+		ON `film`.`film_id` = `film_actor`.`film_id`
+	INNER JOIN `actor` 
+        ON `film_actor`.`actor_id` = `actor`.`actor_id`
+	GROUP BY `actor`.`actor_id`
+    HAVING COUNT(`film`.`film_id`) > 10;
     
-		
+/* EJERCICIO 19:Encuentra el título de todas las películas que son "R" y tienen una duración mayor a 2 horas en la tabla `film`.*/
+
+-- Seleccionamos el título de las películas de la tabla 'film' y filtramos los resultados mediante la claúsula WHERE, teniendo en cuenta que la duración en la tabla está expresada en minutos. 
+SELECT `title`
+	FROM `film`
+    WHERE `rating`= 'R' AND `length` > 120;
+    
+/* EJERCICIO 20: Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y muestra el nombre de la categoría junto con el promedio de duración.*/
+
+-- Hacemos dos INNER JOIN para relacionar la tabla de películas con la de categorías. 
+-- Agrupamos por categoría para que no de la media de cada categoría mediante AVG(`film`.`length`).
+-- Mediante la claúsula having, filtramos los grupos generados por la claúsula GROUP BY
+SELECT `category`.`name`, AVG(`film`.`length`) AS 'average_length' 
+	FROM `film`
+		INNER JOIN `film_category` 
+			ON `film`.`film_id`= `film_category`.`film_id`
+		INNER JOIN `category`
+			ON `film_category`.`category_id`= `category`.`category_id`
+	GROUP BY `category`. `name`
+	HAVING `average_length` > 120
+    
+/* EJERCICIO 21: Encuentra los actores que han actuado en al menos 5 películas y muestra el nombre del actor junto con la cantidad de películas en las que han actuado.*/
+
+-- Al igual que en el ejercicio 18, hacemos dos INNER JOIN para relacionar los actores y las películas. 
+-- Agrupamos por el id del actor, para que nos muestre en cuántas películas aparece cada actor. 
+-- Filtramos los resultados para que únicamente nos muestre los actores que aparecen en más de 5 peliculas usando la cláusula HAVING.
+SELECT `actor`.`first_name`, `actor`.`last_name`, COUNT(`film`.`film_id`) AS 'total_films' 
+	FROM `film`
+    INNER JOIN `film_actor`
+		ON `film`.`film_id` = `film_actor`.`film_id`
+	INNER JOIN `actor` 
+        ON `film_actor`.`actor_id` = `actor`.`actor_id`
+	GROUP BY `actor`.`actor_id`
+    HAVING COUNT(`film`.`film_id`) >= 5;
+
+
+
+
+
+
