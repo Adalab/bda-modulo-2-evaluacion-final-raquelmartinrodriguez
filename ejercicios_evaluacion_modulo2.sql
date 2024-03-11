@@ -182,9 +182,29 @@ SELECT `actor`.`first_name`, `actor`.`last_name`, COUNT(`film`.`film_id`) AS 'to
         ON `film_actor`.`actor_id` = `actor`.`actor_id`
 	GROUP BY `actor`.`actor_id`
     HAVING COUNT(`film`.`film_id`) >= 5;
+    
+/* EJERCICIO 22: Encuentra el título de todas las películas que fueron alquiladas por más de 5 días.
+Utiliza una subconsulta para encontrar los rental_ids con una duración superior a 5 días y luego selecciona las películas correspondientes.*/
 
+-- primero creamos una subconsulta para localizar los inventory_id con una duración superior a 5 días:
+SELECT `inventory_id`
+	FROM `rental` 
+    WHERE DATEDIFF(`return_date`, `rental_date`) > 5
 
+-- La utilizamos para obtener los títulos de las películas alquiladas por más de 5 días
+SELECT DISTINCT `film`.`title`
+	FROM `rental`
+		INNER JOIN `inventory` 
+			ON `rental`.`inventory_id` = `inventory`.`inventory_id`
+		INNER JOIN `film` 
+			ON `inventory`.`film_id` = `film`.`film_id`
+	WHERE `inventory`.`inventory_id` IN (SELECT `inventory`.`inventory_id`
+											FROM `rental`
+												WHERE DATEDIFF(`return_date`, `rental_date`) > 5)
+            
 
+/*EJERCICIO 23: Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría "Horror". 
+Utiliza una subconsulta para encontrar los actores que han actuado en películas de la categoría "Horror" y luego exclúyelos de la lista de actores.*/
 
 
 
