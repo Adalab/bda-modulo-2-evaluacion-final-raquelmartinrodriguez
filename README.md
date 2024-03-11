@@ -3,7 +3,7 @@
 
 ##  Ejercicios de consultas de SQL 
 
-¡Bienvenido al repositorio de evaluación final sobre SQL! Aquí encontrarás los ejercicios realizados en My Workbench SQL durante la última sesión de evaluación del módulo 2 del bootcamp de Data Analitycs resueltos por Raquel Martín Rodríguez. 
+¡Bienvenido al repositorio de evaluación final sobre SQL! Aquí encontrarás los ejercicios realizados en MySQL  Workbench durante la última sesión de evaluación del módulo 2 del bootcamp de Data Analitycs resueltos por Raquel Martín Rodríguez. 
 
 ## Herramientas utilizadas
 
@@ -11,7 +11,7 @@ Los ejercicios se han resuelto usando MySQL Workbench
 
 La BBDD utilizada ha sido 'Sakila'. Esta BBDD se basa en un sistema de alquiler de películas, similar al sistema utilizado por Blockbuster y otras tiendas de alquiler de películas.
 
-## Fechas
+## Fecha de realización
 
 La evaluacion se realizó el dia 11/03/2024
 
@@ -29,4 +29,4 @@ Nuestro objetivo principal durante esta evaluación será comprobar que hemos ad
 
 ## Preguntas y Respuestas
 
-Si tienes preguntas sobre el contenido de este repositorio o sobre SQL en general, no dudes en abrir un archivo y buscar la solución o ponerte en contacto con las creadoras del repositorio.
+Si tienes preguntas sobre el contenido de este repositorio, o si quieres aportar algo, no dudes en ponerte en contacto conmigo.
