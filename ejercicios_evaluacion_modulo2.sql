@@ -66,10 +66,12 @@ SELECT COUNT(`film_id`) as 'total_films', `rating`
 /* EJERCICIO 10: Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su nombre y apellido junto con la cantidad de películas alquiladas*/
 
 -- Unimos la tabla customer con la tabla rental para obtener los datos que nos pide el enunciado. Renombramos las columnas creadas para que sea más fácil su visualización. 
--- Obtenemos los resultados agrupados por el id de cliente utilizando GROUP BY. La nueva columna renombrada como 'total_rented_films' nos muestra la cantidad de películas alquiladas por cada cliente. 
+-- Obtenemos los resultados agrupados por el id de cliente utilizando GROUP BY. 
+-- La nueva columna renombrada como 'total_rented_films' nos muestra la cantidad de películas alquiladas por cada cliente. 
+-- utilizamos LEFT JOIN por si hay algún cliente que no haya alquilado ninguna película
 SELECT `customer`.`customer_id`, COUNT(`rental`.`rental_id`) AS 'total_rented_films', CONCAT(`customer`.`first_name`,'  ' ,`customer`.`last_name`) AS 'customer_name'
 	FROM `customer`
-		INNER JOIN  `rental`
+		LEFT JOIN  `rental`
 			ON `customer`.`customer_id` = `rental`.`customer_id`
 	GROUP BY `customer_id`;
 
@@ -80,15 +82,15 @@ SELECT `customer`.`customer_id`, COUNT(`rental`.`rental_id`) AS 'total_rented_fi
 -- Agrupamos los resultados por el nombre de la categoría para que nos muestra la cantidad de películas alquiladas en función de cada categoría. 
 SELECT COUNT(`rental`.`rental_id`) AS 'total_rented_films', `category`.`name`
 	 FROM `rental`
-     INNER JOIN `inventory`
+     LEFT JOIN `inventory`
 		ON `rental`. `inventory_id` = `inventory`.`inventory_id`
-	INNER JOIN `film`
+	LEFT JOIN `film`
 		ON `inventory`. `film_id`= `film`.`film_id`
-	INNER JOIN `film_category`
+	LEFT JOIN `film_category`
 		ON `film_category`.`film_id`= `film`.`film_id`
-	INNER JOIN `category`
+	LEFT JOIN `category`
 		ON `film_category`. `category_id`= `category`.`category_id`
-	GROUP BY `category`.`name`
+	GROUP BY `category`.`name`;
     
 /* EJERCICIO 12: Encuentra el promedio de duración de las películas para cada clasificación de la tabla `film` y muestra la clasificación junto con el promedio de duración.*/
 
@@ -115,6 +117,15 @@ SELECT `title`
 
 /* EJERCICIO 15: Hay algún actor o actriz que no apareca en ninguna película en la tabla `film_actor`.*/
 
+-- Primero creamos una subconsulta que nos seleccione todos los actor_id de la tabla film_actor
+SELECT DISTINCT `actor_id`
+		FROM `film_actor`
+
+-- Buscamos los id que no aparezcan en esa tabla. En este caso, no hay ningún actor o actriz que no aparezca en ninguna película de la tabla film_actor. 
+SELECT `actor_id`, `first_name`, `last_name`
+	FROM `actor`
+		WHERE `actor_id` NOT IN (SELECT DISTINCT `actor_id`
+									FROM `film_actor`);
 
 /* EJERCICIO 16: Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.*/
 -- seleccionamos el título de la tabla film y filtramos los resultados para que sólo nos muestre las que se lanzaron entre el 2005 y el 2010
@@ -198,13 +209,52 @@ SELECT DISTINCT `film`.`title`
 			ON `rental`.`inventory_id` = `inventory`.`inventory_id`
 		INNER JOIN `film` 
 			ON `inventory`.`film_id` = `film`.`film_id`
-	WHERE `inventory`.`inventory_id` IN (SELECT `inventory`.`inventory_id`
+	WHERE `rental`.`inventory_id` IN (SELECT `rental`.`inventory_id`
 											FROM `rental`
 												WHERE DATEDIFF(`return_date`, `rental_date`) > 5)
+
             
 
 /*EJERCICIO 23: Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría "Horror". 
 Utiliza una subconsulta para encontrar los actores que han actuado en películas de la categoría "Horror" y luego exclúyelos de la lista de actores.*/
 
+-- primero creamos una subconsulta que nos devuelva los actores que han actuado en películas de la categoría "Horror". 
+-- Muchos de ellos salen en varias de las películas, así que utilizamos DISTINCT para que no los duplique
+SELECT DISTINCT CONCAT(`first_name`,' ', `last_name`)
+	FROM `actor`
+		INNER JOIN `film_actor`
+				ON `actor`.`actor_id` = `film_actor`.`actor_id`
+		INNER JOIN `film`
+				ON `film_actor`.`film_id` = `film`.`film_id`
+		INNER JOIN `film_category`
+				ON `film`.`film_id` = `film_category`.`film_id`
+		INNER JOIN `category`
+				ON `film_category`.`category_id` =`category`.`category_id`
+	WHERE `category`.`name` = 'Horror'
 
+-- Utilizamos esta subconsulta para excluir a estos actores de la lista de todos los actores
+SELECT DISTINCT CONCAT(`first_name`,' ', `last_name`) AS 'actor_name'
+	FROM `actor`
+    WHERE CONCAT(`first_name`,' ', `last_name`) NOT IN (SELECT DISTINCT CONCAT(`first_name`,' ', `last_name`)
+														FROM `actor`
+															INNER JOIN `film_actor`
+																ON `actor`.`actor_id` = `film_actor`.`actor_id`
+															INNER JOIN `film`
+																ON `film_actor`.`film_id` = `film`.`film_id`
+															INNER JOIN `film_category`
+																ON `film`.`film_id` = `film_category`.`film_id`
+															INNER JOIN `category`
+																ON `film_category`.`category_id` =`category`.`category_id`
+														WHERE `category`.`name` = 'Horror');
 
+/*EJERCICIO 24: BONUS: Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla `film`.*/
+
+-- Hacemos dos INNER JOIN para relacionar los títulos con las categorías. 
+-- Filtramos por categoría y por duración de la película
+SELECT `film`. `title`
+	FROM `film`
+		INNER JOIN `film_category` 
+			ON `film`.`film_id`= `film_category`. `film_id`
+		INNER JOIN `category` 
+			ON `film_category`. `category_id` = `category`. `category_id`
+	WHERE `category`.`name`= 'Comedy' AND `film`.`length`> 180;
