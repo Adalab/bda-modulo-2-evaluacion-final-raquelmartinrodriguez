@@ -56,6 +56,57 @@ SELECT `title`, rating
 	FROM `film`
     WHERE `rating` NOT IN ('R', 'PG-13'); 
     
-/* EJERCICIO 9: Encuentra la cantidad total de películas en cada clasificación de la tabla `film` y muestra la clasificación junto con el recuento.
-   
+/* EJERCICIO 9: Encuentra la cantidad total de películas en cada clasificación de la tabla `film` y muestra la clasificación junto con el recuento.*/
 
+-- usamos COUNT para que nos cuente el número de películas por su id_film (renombramos la columna como 'total_films'). Con GROUP BY las agrupamos por su clasificación. 
+SELECT COUNT(`film_id`) as 'total_films', `rating`
+	FROM `film`
+    GROUP BY `rating`;
+
+/* EJERCICIO 10: Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su nombre y apellido junto con la cantidad de películas alquiladas*/
+
+-- Unimos la tabla customer con la tabla rental para obtener los datos que nos pide el enunciado. Renombramos las columnas creadas para que sea más fácil su visualización. 
+-- Obtenemos los resultados agrupados por el id de cliente utilizando GROUP BY. La nueva columna renombrada como 'total_rented_films' nos muestra la cantidad de películas alquiladas por cada cliente. 
+SELECT `customer`.`customer_id`, COUNT(`rental`.`rental_id`) AS 'total_rented_films', CONCAT(`customer`.`first_name`,'  ' ,`customer`.`last_name`) AS 'customer_name'
+	FROM `customer`
+		INNER JOIN  `rental`
+			ON `customer`.`customer_id` = `rental`.`customer_id`
+	GROUP BY `customer_id`;
+
+/*EJERCICIO 11: Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría junto con el recuento de alquileres.*/
+
+-- Hacemos 4 INNER JOIN para relacionar las películas alquiladas con la categoría. 
+-- Renombramos el recuento de películas alquiladas como 'total_rented_films'. 
+-- Agrupamos los resultados por el nombre de la categoría para que nos muestra la cantidad de películas alquiladas en función de cada categoría. 
+SELECT COUNT(`rental`.`rental_id`) AS 'total_rented_films', `category`.`name`
+	 FROM `rental`
+     INNER JOIN `inventory`
+		ON `rental`. `inventory_id` = `inventory`.`inventory_id`
+	INNER JOIN `film`
+		ON `inventory`. `film_id`= `film`.`film_id`
+	INNER JOIN `film_category`
+		ON `film_category`.`film_id`= `film`.`film_id`
+	INNER JOIN `category`
+		ON `film_category`. `category_id`= `category`.`category_id`
+	GROUP BY `category`.`name`
+    
+/* EJERCICIO 12: Encuentra el promedio de duración de las películas para cada clasificación de la tabla `film` y muestra la clasificación junto con el promedio de duración.*/
+
+-- Calculamos la media de duración de las películas (AVG (length)) y las agrupamos por su clasificación. 
+SELECT AVG(`length`) AS 'media_duracion' , `rating`
+	FROM `film`
+    GROUP BY `rating`;
+    
+/* EJERCICIO 13: Encuentra el nombre y apellido de los actores que aparecen en la película con title "Indian Love".*/
+
+-- Hacemos dos INNER JOIN para relacionar las tablas 'film' y 'actor'. Filtramos mediante WHERE para que únicamente muestre los acores de la película 'Indian Love'.
+SELECT `actor`.`first_name`, `actor`. `last_name`
+	FROM `film`
+    INNER JOIN `film_actor` ON `film`.`film_id`= `film_actor`. `film_id`
+    INNER JOIN `actor` ON `film_actor`.`actor_id`= `actor`.`actor_id`
+	WHERE `film`.`title` = "Indian Love";
+
+
+    
+    
+		
